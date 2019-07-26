@@ -1,6 +1,5 @@
 ## ##################################################################################
 ## Roy Burstein
-## rbrustein@idmod.org
 ## 26 July 2019
 ## Purpose: pull in open data on health facility locations and D Weiss friction surface
 ##          to make a contintental map of travel time to public health facilities.
@@ -9,10 +8,10 @@
 ## basic setup
 
 # choose a country (or vector of countries to map)
-cntrys <- c('Ethiopia')
+cntrys <- c('Nigeria')
 
 # load needed packages
-libs <- c('raster', 'gdistance', 'data.table', 'readxl')
+libs <- c('raster', 'gdistance', 'data.table', 'readxl','scales')
 for(l in libs) require(l, character.only = TRUE)
 
 # set your working directory, make sure all data are in there
@@ -25,7 +24,7 @@ setwd('C:/Users/rburstein/Dropbox (IDM)/africa_hf_tt')
 # data: https://springernature.figshare.com/ndownloader/files/14379593
 hf <- as.data.table(read_excel('00 SSA MFL (130219).xlsx'))
 
-# load in gloabl shapefile, subset it to the country youare interested in
+# load in gloabl shapefile, subset it to the country you are interested in
 # it could be mutliple countries, but beware the the transistion() step is RAM intensive
 # https://www.naturalearthdata.com/downloads/50m-cultural-vectors/50m-admin-0-countries-2/
 shp <- shapefile('ne_50m_admin_0_countries')
@@ -42,7 +41,7 @@ fric <- mask(fric, shp)
 # Code below modified from code provided at: https://map.ox.ac.uk/research-project/accessibility_to_cities/
 
 # get coordinates
-xy    <- na.omit(hf[Country %in% cntrys, c('Long', 'Lat'), with = FALSE])
+xy    <- as.matrix(na.omit(hf[Country %in% cntrys, c('Long', 'Lat'), with = FALSE]))
 if(nrow(xy)==0) stop('Oops! There dont appear to be any health facilities left!')
 
 # Make the graph and the geocorrected version of the graph (or read in the latter).
@@ -52,23 +51,17 @@ T.GC <- geoCorrection(Tr)
 # Run the accumulated cost algorithm to make the final output map. This can be quite slow (potentially hours).
 tt <- accCost(T.GC, xy)
 
+# convert it to hours
+tt <- tt/60
 
 # save the travel time surface
 writeRaster(tt, sprintf('public_hf_tt_surface_%s.tif', paste0(cntrys, collapse = '_')))
 
-
 ## Make some nice plots
 plot(tt,col = c('#2E1510','#3E1D1D','#4D262D','#593140','#623E54','#664D69',
                 '#655E7D','#5F708F','#54829E','#4594A8','#39A6AC','#38B7AB',
-                '#49C7A5','#66D79B','#8AE48E','#B1F081','#DCFA76'))
-points(xy,col='yellow',cex=.01)
+                '#49C7A5','#66D79B','#8AE48E','#B1F081','#DCFA76'), 
+     axes=FALSE, box=FALSE,  legend.args=list(text='Travel time (Hrs)\nto Public HF'))
+points(xy,col=alpha('yellow',0.4),cex=.01)
 
 
-
-
-
-# Write the resulting raster
-tp <- mask(tt,zmb)
-writeRaster(tp, 'C:/Users/royburst/Google Drive/friction_surface/zmb_tt_masked.tif')
-
-# plot it nicelike
