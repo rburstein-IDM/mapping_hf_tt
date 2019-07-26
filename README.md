@@ -1,6 +1,6 @@
 # Make Travel Time to Public Health Facilties Maps #
 
-The script in this repo will help you quickly make a 1x1km grid cell map of travel time to public health facilities for any country in Africa. 
+The script in this repo will help you quickly make a 1x1km grid cell map of travel time to public health facilities for any country in sub-Saharan Africa. 
 
 It uses as input all public data. I am very grateful for these awesome resources to have been made publicly available.  Health facility locations are available from [A spatial database of health facilities managed by the public health sector in sub Saharan Africa](https://www.nature.com/articles/s41597-019-0142-2) by Joseph Maina et al. as well as a [Friction Surface](https://map.ox.ac.uk/research-project/accessibility_to_cities/) by Dan Weiss et al over at the Malaria Atlas Project.
 
